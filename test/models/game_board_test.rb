@@ -28,9 +28,96 @@ class GameBoardTest < ActiveSupport::TestCase
     end
   end
 
-  def dropAndValidate(col, expectedRow, expectedPlayer)
-    @game.drop(col)
-    assert_equal expectedPlayer, @game.playerAt(col, expectedRow)
+  test "Parse round trip" do
+    cell_values = "0 0 1 1 2 2 0\n" +
+                  "0 0 1 2 2 1 0\n" +
+                  "0 2 1 1 1 2 1\n" +
+                  "0 1 2 2 2 1 1\n" +
+                  "0 1 2 1 2 1 1\n" +
+                  "0 2 1 1 2 1 2"
+
+    @game.parse(cell_values)
+    assert_equal cell_values, @game.to_s
+    # spot check to ensure the right type
+    assert_equal 2, @game.playerAt(3, 3)
   end
 
+  test "Detect no win" do
+    @game.parse("0 0 0 0 0 0 0\n" +
+                "0 0 0 0 0 0 0\n" +
+                "0 0 0 0 2 0 0\n" +
+                "0 0 0 0 1 0 0\n" +
+                "0 0 2 1 1 0 0\n" +
+                "0 2 1 2 2 1 2")
+    dropAndDetectWinner(3, 3, 1, nil)
+  end
+
+  test "Detect horizontal win on end" do
+    @game.parse("0 0 0 0 0 0 0\n" +
+                "0 0 0 0 0 0 0\n" +
+                "0 0 0 0 0 0 0\n" +
+                "0 0 0 0 0 0 0\n" +
+                "0 0 0 0 0 0 0\n" +
+                "1 1 1 0 2 2 2")
+    dropAndDetectWinner(3, 5, 1, 1)
+  end
+
+  test "Detect horizontal win in middle" do
+    @game.parse("0 0 0 0 0 0 0\n" +
+                "0 0 0 0 0 0 0\n" +
+                "0 0 0 0 0 0 0\n" +
+                "0 0 0 0 0 0 0\n" +
+                "0 0 0 0 0 0 0\n" +
+                "1 1 0 1 2 2 2")
+    dropAndDetectWinner(2, 5, 1, 1)
+  end
+
+
+  test "Detect vertical win" do
+    @game.parse("0 0 0 0 0 0 0\n" +
+                "0 0 0 0 0 0 0\n" +
+                "0 0 0 0 0 0 0\n" +
+                "1 0 0 0 0 0 0\n" +
+                "1 0 0 0 0 0 0\n" +
+                "1 0 0 0 2 2 2")
+    dropAndDetectWinner(0, 2, 1, 1)
+  end
+
+  test "Detect bottom left to top right diagonal win" do
+    @game.parse("0 0 0 0 0 0 0\n" +
+                "0 0 0 0 0 0 0\n" +
+                "0 0 0 0 2 0 0\n" +
+                "0 0 0 0 1 0 0\n" +
+                "0 0 2 1 1 0 0\n" +
+                "0 2 1 2 2 1 1")
+    dropAndDetectWinner(3, 3, 2, 2)
+  end
+
+  test "Detect top left to bottem right diagonal win" do
+    @game.parse("0 0 0 0 0 0 0\n" +
+                "0 0 0 0 0 0 0\n" +
+                "0 2 0 0 0 0 0\n" +
+                "0 1 2 0 0 0 0\n" +
+                "0 1 1 0 0 0 0\n" +
+                "0 2 1 2 2 1 1")
+    dropAndDetectWinner(3, 4, 2, 2)
+  end
+
+  def dropAndValidate(col, expected_row, expected_player)
+    @game.drop(col)
+    assert_equal expected_player, @game.playerAt(col, expected_row)
+  end
+
+  def dropAndDetectWinner(col, expected_row, expected_player, expected_winner)
+    #no winner yet
+    assert_nil @game.winner
+
+    #drop 4th across to win
+    dropAndValidate(col, expected_row, expected_player)
+    if (expected_winner.nil?)
+      assert_nil @game.winner
+    else
+      assert_equal expected_winner, @game.winner
+    end
+  end
 end
