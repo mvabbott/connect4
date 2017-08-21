@@ -103,6 +103,26 @@ class GameBoardTest < ActiveSupport::TestCase
     dropAndDetectWinner(3, 4, 2, 2)
   end
 
+  test "Detect not draw yet" do
+    @game.parse("2 2 0 1 1 0 2\n" +
+                "1 1 2 2 2 1 1\n" +
+                "2 2 1 1 1 2 2\n" +
+                "1 1 2 2 2 1 1\n" +
+                "2 2 1 1 1 2 2\n" +
+                "1 1 2 2 2 1 1")
+    dropAndDetectWinner(2, 0, 1, nil)
+  end
+
+  test "Detect draw" do
+    @game.parse("2 2 1 1 1 0 2\n" +
+                "1 1 2 2 2 1 1\n" +
+                "2 2 1 1 1 2 2\n" +
+                "1 1 2 2 2 1 1\n" +
+                "2 2 1 1 1 2 2\n" +
+                "1 1 2 2 2 1 1")
+    dropAndDetectWinner(5, 0, 2, 0)
+  end
+
   def dropAndValidate(col, expected_row, expected_player)
     @game.drop(col)
     assert_equal expected_player, @game.playerAt(col, expected_row)

@@ -14,6 +14,7 @@
 # an available cell, 1 for player 1 or 2 for player 2.  This is implemented as
 # nexted arrays, with the column index as the outer array, and the row indexed
 # on the inner array.
+# TODO Replace 0/1/2 values with symbols.
 
 class GameBoard
   attr_reader :num_col, :num_row, :next_player, :winner
@@ -65,7 +66,7 @@ class GameBoard
     # TODO Look for a cleaner way to raise errors (with friendly messages)
     row = @cells.fetch(col).rindex { |cell| cell.available? }
     @cells[col].fetch(row).assign(@next_player)
-    @winner = check_for_winner(col, row, @next_player)
+    update_winner(col, row, @next_player)
     update_next_player
   end
 
@@ -79,6 +80,15 @@ class GameBoard
 
   def valid_coordinates?(col, row)
     0 <= col && col < @num_col && 0 <= row && row < @num_row
+  end
+
+  def update_winner(col, row, player)
+    if (@winner.nil?)
+      @winner = check_for_winner(col, row, player)
+    end
+    if (@winner.nil? && draw?)
+      @winner = 0
+    end
   end
 
   # Don't set the winner status here, it will later be used by the AI to decide when
@@ -103,6 +113,10 @@ class GameBoard
     else
       return nil
     end
+  end
+
+  def draw?
+    (0..@num_col-1).all? { |col| playerAt(col, 0) != 0 }
   end
 
   def get_count(col, row, player, &block)
