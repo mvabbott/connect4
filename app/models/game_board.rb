@@ -1,3 +1,18 @@
+# GameBoard contains the grid of cells for the Connect 4 game.  The grid is
+# layed out with the following format:
+#
+#        Columns
+#     0 1 2 3 4 5 6
+#   0 . . . . . . .
+# R 1 . . . . . . .
+# o 2 . . . . . . .
+# w 3 . . . . . . .
+# s 4 . . . . . . .
+#   5 . . . . . . .
+#
+# Each cell contains a Cell object, which has an owner, with 0 representing
+# an available cell, 1 for player 1 or 2 for player 2. 
+
 class GameBoard
   attr_reader :num_col, :num_row, :next_player
 
