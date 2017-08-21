@@ -11,7 +11,9 @@
 #   5 . . . . . . .
 #
 # Each cell contains a Cell object, which has an owner, with 0 representing
-# an available cell, 1 for player 1 or 2 for player 2.
+# an available cell, 1 for player 1 or 2 for player 2.  This is implemented as
+# nexted arrays, with the column index as the outer array, and the row indexed
+# on the inner array.
 
 class GameBoard
   attr_reader :num_col, :num_row, :next_player, :winner
@@ -24,7 +26,7 @@ class GameBoard
     @winner = nil
   end
 
-  # TODO improve error handling
+  # TODO improve error handling, bad size or values will result in invalid game
   def parse(board)
     # split rows and then columns, resulting in array indexed by row and then
     # by column, opposite of how @cells is indexed.
@@ -82,6 +84,7 @@ class GameBoard
   # Don't set the winner status here, it will later be used by the AI to decide when
   # to pick a column in order to win or block the player from winning.
   def check_for_winner(col, row, player)
+    # TODO clean this method up, it's pretty ugly right now
     left_count = get_count(col, row, player) { |col, row| [col - 1, row] }
     right_count = get_count(col, row, player) { |col, row| [col + 1, row] }
     # checking as we add, so no need to check up from current coordinates

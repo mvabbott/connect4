@@ -112,7 +112,7 @@ class GameBoardTest < ActiveSupport::TestCase
     #no winner yet
     assert_nil @game.winner
 
-    #drop 4th across to win
+    #drop 4th across to win (unless expected_winner is nil)
     dropAndValidate(col, expected_row, expected_player)
     if (expected_winner.nil?)
       assert_nil @game.winner
