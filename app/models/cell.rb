@@ -11,6 +11,7 @@ class Cell
 
   def assign(player)
     @owner = player
+    self
   end
 
 end

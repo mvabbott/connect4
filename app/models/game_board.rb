@@ -1,4 +1,6 @@
 class GameBoard
+  attr_reader :num_col, :num_row
+
   def initialize
     @num_col = 7
     @num_row = 6
@@ -6,8 +8,10 @@ class GameBoard
   end
 
   def drop(col)
-    row = @cells[col].rindex { |cell| cell.available? }
-    @cells[col][row].assign(1)
+    # Using fetch to cause IndexError rather than return nil
+    # TODO Look for a cleaner way to raise errors (with friendly messages)
+    row = @cells.fetch(col).rindex { |cell| cell.available? }
+    @cells[col].fetch(row).assign(1)
   end
 
   def playerAt(col, row)
