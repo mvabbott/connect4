@@ -7,7 +7,7 @@ class GameBoardTest < ActiveSupport::TestCase
 
   test "drop fills bottom row" do
     dropAndValidate(1, @game.num_row - 1, 1)
-    assert_equal 0, @game.playerAt(1, 4), "next row up is filled"
+    assert_equal 0, @game.player_at(1, 4), "next row up is filled"
   end
 
   test "Error when dropping to invalid column" do
@@ -51,7 +51,7 @@ class GameBoardTest < ActiveSupport::TestCase
     @game.parse(cell_values)
     assert_equal cell_values, @game.to_s
     # spot check to ensure the right type
-    assert_equal 2, @game.playerAt(3, 3)
+    assert_equal 2, @game.player_at(3, 3)
   end
 
   test "Detect no win" do
@@ -137,7 +137,7 @@ class GameBoardTest < ActiveSupport::TestCase
 
   def dropAndValidate(col, expected_row, expected_player)
     @game.drop(col)
-    assert_equal expected_player, @game.playerAt(col, expected_row)
+    assert_equal expected_player, @game.player_at(col, expected_row)
   end
 
   def dropAndDetectWinner(col, expected_row, expected_player, expected_winner)

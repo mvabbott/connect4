@@ -32,7 +32,7 @@ class GameBoard
     # split rows and then columns, resulting in array indexed by row and then
     # by column, opposite of how @cells is indexed.
     cell_values = board.split("\n").map { |row| row.split(" ") }
-    player_moves = [0, 0, 0]
+    player_moves = [0,0,0]
 
     (0..num_col-1).each do |col|
       (0..num_row-1).each do |row|
@@ -54,7 +54,7 @@ class GameBoard
 
     (0..@num_row-1).each do |row|
       (0..@num_col-1).each do |col|
-        cell_values[row][col] = playerAt(col, row)
+        cell_values[row][col] = player_at(col, row)
       end
     end
 
@@ -62,7 +62,7 @@ class GameBoard
   end
 
   def column_available?(col)
-    playerAt(col, 0) == 0
+    player_at(col, 0) == 0
   end
 
   def drop(col)
@@ -74,7 +74,7 @@ class GameBoard
     update_next_player
   end
 
-  def playerAt(col, row)
+  def player_at(col, row)
     if (valid_coordinates?(col, row))
       @cells[col][row].owner
     else
@@ -120,7 +120,7 @@ class GameBoard
   end
 
   def draw?
-    (0..@num_col-1).all? { |col| playerAt(col, 0) != 0 }
+    (0..@num_col-1).all? { |col| player_at(col, 0) != 0 }
   end
 
   def get_count(col, row, player, &block)
@@ -128,7 +128,7 @@ class GameBoard
     new_col = new_coordinates[0]
     new_row = new_coordinates[1]
 
-    if (playerAt(new_col, new_row) == player)
+    if (player_at(new_col, new_row) == player)
       return 1 + get_count(new_col, new_row, player, &block)
     else
       return 0
