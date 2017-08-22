@@ -138,8 +138,4 @@ class GameBoard
   def update_next_player
     @next_player = @next_player == 1 ? 2 : 1
   end
-
-  def display
-    puts to_s
-  end
 end

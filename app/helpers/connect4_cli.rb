@@ -37,8 +37,7 @@ class Connect4Cli
   def draw_board
     puts "\n0 1 2 3 4 5 6"
     puts   "-------------"
-    @game.display
-
+    puts @game.to_s    
   end
 end
 
