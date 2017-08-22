@@ -22,11 +22,23 @@ class GameBoardTest < ActiveSupport::TestCase
     assert_raise { @game.drop(1) }
   end
 
+  test "column_available returns expected value" do
+    # fill up column
+    @game.num_row.times do
+      assert @game.column_available?(1)
+      @game.drop(1)
+    end
+
+    # column no longer available
+    assert !@game.column_available?(1)
+  end
+
   test "Drop alternates players" do
     3.times do |i|
       dropAndValidate(1, @game.num_row - (i+1), i%2 + 1)
     end
   end
+
 
   test "Parse round trip" do
     cell_values = "0 0 1 1 2 2 0\n" +

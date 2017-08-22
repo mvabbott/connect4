@@ -61,6 +61,10 @@ class GameBoard
     cell_values.map { |row| row.join(" ") }.join("\n")
   end
 
+  def column_available?(col)
+    playerAt(col, 0) == 0
+  end
+
   def drop(col)
     # Using fetch to cause IndexError rather than return nil
     # TODO Look for a cleaner way to raise errors (with friendly messages)
