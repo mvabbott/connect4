@@ -14,7 +14,6 @@
 # an available cell, 1 for player 1 or 2 for player 2.  This is implemented as
 # nexted arrays, with the column index as the outer array, and the row indexed
 # on the inner array.
-# TODO Replace 0/1/2 values with symbols.
 
 class GameBoard
   attr_reader :num_col, :num_row, :next_player, :winner
@@ -23,38 +22,41 @@ class GameBoard
     @num_col = 7
     @num_row = 6
     @cells = Array.new(@num_col) { Array.new(@num_row) { Cell.new } }
-    @next_player = 1
+    @next_player = :player1
     @winner = nil
   end
 
   # TODO improve error handling, bad size or values will result in invalid game
   def parse(board)
+    int_to_player = { 0 => :empty, 1 => :player1, 2 => :player2 }
+
     # split rows and then columns, resulting in array indexed by row and then
     # by column, opposite of how @cells is indexed.
     cell_values = board.split("\n").map { |row| row.split(" ") }
-    player_moves = [0,0,0]
+    player_moves = { empty: 0, player1: 0, player2: 0 }
 
     (0..num_col-1).each do |col|
       (0..num_row-1).each do |row|
-        player = cell_values[row][col].to_i
+        player = int_to_player[cell_values[row][col].to_i]
         @cells[col][row].assign(player)
         player_moves[player] = player_moves[player] + 1
       end
     end
 
-    if (player_moves[1] > player_moves[2])
-      @next_player = 2
+    if (player_moves[:player1] > player_moves[:player2])
+      @next_player = :player2
     else
-      @next_player = 1
+      @next_player = :player1
     end
   end
 
   def to_s
+    player_to_int = { empty: 0, player1: 1, player2: 2 }
     cell_values = Array.new(@num_row) { Array.new(@num_col) }
 
     (0..@num_row-1).each do |row|
       (0..@num_col-1).each do |col|
-        cell_values[row][col] = player_at(col, row)
+        cell_values[row][col] = player_to_int[player_at(col, row)]
       end
     end
 
@@ -62,7 +64,7 @@ class GameBoard
   end
 
   def column_available?(col)
-    player_at(col, 0) == 0
+    player_at(col, 0) == :empty
   end
 
   def drop(col)
@@ -78,7 +80,7 @@ class GameBoard
     if (valid_coordinates?(col, row))
       @cells[col][row].owner
     else
-      0
+      :empty
     end
   end
 
@@ -91,7 +93,7 @@ class GameBoard
       @winner = check_for_winner(col, row, player)
     end
     if (@winner.nil? && draw?)
-      @winner = 0
+      @winner = :empty
     end
   end
 
@@ -120,7 +122,7 @@ class GameBoard
   end
 
   def draw?
-    (0..@num_col-1).all? { |col| player_at(col, 0) != 0 }
+    (0..@num_col-1).all? { |col| player_at(col, 0) != :empty }
   end
 
   def get_count(col, row, player, &block)
@@ -136,6 +138,6 @@ class GameBoard
   end
 
   def update_next_player
-    @next_player = @next_player == 1 ? 2 : 1
+    @next_player = @next_player == :player1 ? :player2 : :player1
   end
 end

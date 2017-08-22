@@ -6,8 +6,8 @@ class GameBoardTest < ActiveSupport::TestCase
   end
 
   test "drop fills bottom row" do
-    dropAndValidate(1, @game.num_row - 1, 1)
-    assert_equal 0, @game.player_at(1, 4), "next row up is filled"
+    dropAndValidate(1, @game.num_row - 1, :player1)
+    assert_equal :empty, @game.player_at(1, 4), "next row up is filled"
   end
 
   test "Error when dropping to invalid column" do
@@ -16,7 +16,7 @@ class GameBoardTest < ActiveSupport::TestCase
 
   test "Error when dropping to full column" do
     # fill up column
-    @game.num_row.times { |i| dropAndValidate(1, @game.num_row - (i+1), i%2 + 1) }
+    @game.num_row.times { |i| dropAndValidate(1, @game.num_row - (i+1), i%2 == 0 ? :player1 : :player2) }
 
     # try to add one more
     assert_raise { @game.drop(1) }
@@ -35,7 +35,7 @@ class GameBoardTest < ActiveSupport::TestCase
 
   test "Drop alternates players" do
     3.times do |i|
-      dropAndValidate(1, @game.num_row - (i+1), i%2 + 1)
+      dropAndValidate(1, @game.num_row - (i+1), i%2 == 0 ? :player1 : :player2)
     end
   end
 
@@ -51,7 +51,7 @@ class GameBoardTest < ActiveSupport::TestCase
     @game.parse(cell_values)
     assert_equal cell_values, @game.to_s
     # spot check to ensure the right type
-    assert_equal 2, @game.player_at(3, 3)
+    assert_equal :player2, @game.player_at(3, 3)
   end
 
   test "Detect no win" do
@@ -61,7 +61,7 @@ class GameBoardTest < ActiveSupport::TestCase
                 "0 0 0 0 1 0 0\n" +
                 "0 0 2 1 1 0 0\n" +
                 "0 2 1 2 2 1 2")
-    dropAndDetectWinner(3, 3, 1, nil)
+    dropAndDetectWinner(3, 3, :player1, nil)
   end
 
   test "Detect horizontal win on end" do
@@ -71,7 +71,7 @@ class GameBoardTest < ActiveSupport::TestCase
                 "0 0 0 0 0 0 0\n" +
                 "0 0 0 0 0 0 0\n" +
                 "1 1 1 0 2 2 2")
-    dropAndDetectWinner(3, 5, 1, 1)
+    dropAndDetectWinner(3, 5, :player1, :player1)
   end
 
   test "Detect horizontal win in middle" do
@@ -81,7 +81,7 @@ class GameBoardTest < ActiveSupport::TestCase
                 "0 0 0 0 0 0 0\n" +
                 "0 0 0 0 0 0 0\n" +
                 "1 1 0 1 2 2 2")
-    dropAndDetectWinner(2, 5, 1, 1)
+    dropAndDetectWinner(2, 5, :player1, :player1)
   end
 
 
@@ -92,7 +92,7 @@ class GameBoardTest < ActiveSupport::TestCase
                 "1 0 0 0 0 0 0\n" +
                 "1 0 0 0 0 0 0\n" +
                 "1 0 0 0 2 2 2")
-    dropAndDetectWinner(0, 2, 1, 1)
+    dropAndDetectWinner(0, 2, :player1, :player1)
   end
 
   test "Detect bottom left to top right diagonal win" do
@@ -102,7 +102,7 @@ class GameBoardTest < ActiveSupport::TestCase
                 "0 0 0 0 1 0 0\n" +
                 "0 0 2 1 1 0 0\n" +
                 "0 2 1 2 2 1 1")
-    dropAndDetectWinner(3, 3, 2, 2)
+    dropAndDetectWinner(3, 3, :player2, :player2)
   end
 
   test "Detect top left to bottem right diagonal win" do
@@ -112,7 +112,7 @@ class GameBoardTest < ActiveSupport::TestCase
                 "0 1 2 0 0 0 0\n" +
                 "0 1 1 0 0 0 0\n" +
                 "0 2 1 2 2 1 1")
-    dropAndDetectWinner(3, 4, 2, 2)
+    dropAndDetectWinner(3, 4, :player2, :player2)
   end
 
   test "Detect not draw yet" do
@@ -122,7 +122,7 @@ class GameBoardTest < ActiveSupport::TestCase
                 "1 1 2 2 2 1 1\n" +
                 "2 2 1 1 1 2 2\n" +
                 "1 1 2 2 2 1 1")
-    dropAndDetectWinner(2, 0, 1, nil)
+    dropAndDetectWinner(2, 0, :player1, nil)
   end
 
   test "Detect draw" do
@@ -132,7 +132,7 @@ class GameBoardTest < ActiveSupport::TestCase
                 "1 1 2 2 2 1 1\n" +
                 "2 2 1 1 1 2 2\n" +
                 "1 1 2 2 2 1 1")
-    dropAndDetectWinner(5, 0, 2, 0)
+    dropAndDetectWinner(5, 0, :player2, :empty)
   end
 
   def dropAndValidate(col, expected_row, expected_player)

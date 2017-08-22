@@ -14,16 +14,16 @@ class Connect4Cli
     end
 
     draw_board
-    if @game.winner == 0
+    if @game.winner == :empty
       puts "\nDraw"
     else
-      puts "\nWinner is player #{@game.winner}"
+      puts "\nWinner is #{@game.winner}"
     end
   end
 
   def play_turn
     draw_board
-    print "Select column for player #{@game.next_player}: "
+    print "Select column for #{@game.next_player}: "
     col = Integer(gets) rescue nil
     if col.nil? || col < 0 || col >= @game.num_col
       puts "\nInvalid column, enter a number from 0 to #{@game.num_col - 1}"
@@ -37,7 +37,7 @@ class Connect4Cli
   def draw_board
     puts "\n0 1 2 3 4 5 6"
     puts   "-------------"
-    puts @game.to_s    
+    puts @game.to_s
   end
 end
 

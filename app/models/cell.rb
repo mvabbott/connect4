@@ -1,12 +1,12 @@
 class Cell
   attr_reader :owner
 
-  def initialize(owner=0)
+  def initialize(owner=:empty)
     @owner = owner
   end
 
   def available?
-    return @owner == 0
+    return @owner == :empty
   end
 
   def assign(player)
