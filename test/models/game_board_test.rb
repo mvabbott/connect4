@@ -135,6 +135,40 @@ class GameBoardTest < ActiveSupport::TestCase
     dropAndDetectWinner(5, 0, :player2, :empty)
   end
 
+  test "Player controller is human or simple_ai" do
+    @game.set_player_controller(:player1, :simple_ai)
+    assert_equal :simple_ai, @game.player_controller(:player1)
+    @game.set_player_controller(:player1, :human)
+    assert_equal :human, @game.player_controller(:player1)
+    @game.set_player_controller(:player1, :banana)
+    assert_equal :human, @game.player_controller(:player1)
+  end
+
+  test "AI player automatically makes a move" do
+    @game.set_player_controller(:player2, :simple_ai)
+    @game.drop(0)
+
+    assert_equal :player1, @game.next_player
+    assert_not_equal "0 0 0 0 0 0 0\n" +
+                     "0 0 0 0 0 0 0\n" +
+                     "0 0 0 0 0 0 0\n" +
+                     "0 0 0 0 0 0 0\n" +
+                     "0 0 0 0 0 0 0\n" +
+                     "1 0 0 0 0 0 0", @game.to_s
+  end
+
+  test "Setting current player to AI immediately makes a move" do
+    @game.set_player_controller(:player1, :simple_ai)
+
+    assert_equal :player2, @game.next_player
+    assert_not_equal "0 0 0 0 0 0 0\n" +
+                     "0 0 0 0 0 0 0\n" +
+                     "0 0 0 0 0 0 0\n" +
+                     "0 0 0 0 0 0 0\n" +
+                     "0 0 0 0 0 0 0\n" +
+                     "0 0 0 0 0 0 0", @game.to_s
+  end
+
   def dropAndValidate(col, expected_row, expected_player)
     @game.drop(col)
     assert_equal expected_player, @game.player_at(col, expected_row)

@@ -24,6 +24,9 @@ class GameBoard
     @cells = Array.new(@num_col) { Array.new(@num_row) { Cell.new } }
     @next_player = :player1
     @winner = nil
+    @player_controller = {}
+    set_player_controller(:player1, :human)
+    set_player_controller(:player2, :human)
   end
 
   # TODO improve error handling, bad size or values will result in invalid game
@@ -139,5 +142,25 @@ class GameBoard
 
   def update_next_player
     @next_player = @next_player == :player1 ? :player2 : :player1
+
+    if @player_controller[@next_player].ai?
+      drop(@player_controller[@next_player].find_next_move(self))
+    end
+  end
+
+  def player_controller(player)
+    @player_controller[player].symbol
+  end
+
+  # TODO add additional error checks
+  def set_player_controller(player, controller)
+    if controller == :human
+      @player_controller[player] = HumanPlayer.new
+    elsif controller == :simple_ai
+      @player_controller[player] = SimpleAiPlayer.new
+      if player == @next_player
+        drop(@player_controller[player].find_next_move(self))
+      end
+    end
   end
 end
