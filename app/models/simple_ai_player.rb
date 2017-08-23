@@ -1,6 +1,10 @@
-class SimpleAiPlayer
+class SimpleAiPlayer < Player
   def ai?
     true
+  end
+
+  def empty?
+    false
   end
 
   def symbol

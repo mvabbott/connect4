@@ -16,50 +16,73 @@
 # on the inner array.
 
 class GameBoard
-  attr_reader :num_col, :num_row, :next_player, :winner
+  attr_reader :num_col, :num_row, :winner
 
-  def initialize
+  def initialize(player_types)
+    build_player_queue(player_types)
     @num_col = 7
     @num_row = 6
-    @cells = Array.new(@num_col) { Array.new(@num_row) { Cell.new } }
-    @next_player = :player1
+    @cells = Array.new(@num_col) { Array.new(@num_row) { Cell.new(@player_queue.empty) } }
     @winner = nil
-    @player_controller = {}
-    set_player_controller(:player1, :human)
-    set_player_controller(:player2, :human)
+  end
+
+  def build_player_queue(player_types)
+    @player_queue = PlayerQueue.new
+    player_number = 1
+    player_types.each do |type|
+      if type == :human
+        @player_queue.add(HumanPlayer.new(player_number))
+      elsif type == :simple_ai
+        @player_queue.add(SimpleAiPlayer.new(player_number))
+      else
+        raise ArgumentError("Invalid player_type #{type}.")
+      end
+      player_number = player_number + 1
+    end
   end
 
   # TODO improve error handling, bad size or values will result in invalid game
   def parse(board)
-    int_to_player = { 0 => :empty, 1 => :player1, 2 => :player2 }
-
     # split rows and then columns, resulting in array indexed by row and then
     # by column, opposite of how @cells is indexed.
     cell_values = board.split("\n").map { |row| row.split(" ") }
-    player_moves = { empty: 0, player1: 0, player2: 0 }
+    player_moves = Hash.new(0)
 
     (0..num_col-1).each do |col|
       (0..num_row-1).each do |row|
-        player = int_to_player[cell_values[row][col].to_i]
+        player = find_player_by_number(cell_values[row][col].to_i)
         @cells[col][row].assign(player)
         player_moves[player] = player_moves[player] + 1
       end
     end
 
-    if (player_moves[:player1] > player_moves[:player2])
-      @next_player = :player2
-    else
-      @next_player = :player1
+    set_player_queue_order(player_moves)
+  end
+
+  def set_player_queue_order(player_moves)
+    player_moves.delete(@player_queue.empty)
+    new_player_order = player_moves.to_a.sort do |a, b|
+      if a[1] == b[1]
+        # same number of moves order by player number
+        a[0].player_number <=> b[0].player_number
+      else
+        # otherwise sort by number of moves
+        a[1] <=> b[1]
+      end
     end
+    @player_queue.queue = new_player_order.map { |a| a[0] }
+  end
+
+  def find_player_by_number(player_number)
+    @player_queue.find { |player| player.player_number == player_number }
   end
 
   def to_s
-    player_to_int = { empty: 0, player1: 1, player2: 2 }
     cell_values = Array.new(@num_row) { Array.new(@num_col) }
 
     (0..@num_row-1).each do |row|
       (0..@num_col-1).each do |col|
-        cell_values[row][col] = player_to_int[player_at(col, row)]
+        cell_values[row][col] = player_at(col, row).player_number
       end
     end
 
@@ -67,15 +90,15 @@ class GameBoard
   end
 
   def column_available?(col)
-    player_at(col, 0) == :empty
+    player_at(col, 0).empty?
   end
 
   def drop(col)
     # Using fetch to cause IndexError rather than return nil
     # TODO Look for a cleaner way to raise errors (with friendly messages)
     row = @cells.fetch(col).rindex { |cell| cell.available? }
-    @cells[col].fetch(row).assign(@next_player)
-    update_winner(col, row, @next_player)
+    @cells[col].fetch(row).assign(@player_queue.current_player)
+    update_winner(col, row)
     update_next_player
   end
 
@@ -83,20 +106,24 @@ class GameBoard
     if (valid_coordinates?(col, row))
       @cells[col][row].owner
     else
-      :empty
+      @player_queue.empty
     end
+  end
+
+  def current_player
+    @player_queue.current_player
   end
 
   def valid_coordinates?(col, row)
     0 <= col && col < @num_col && 0 <= row && row < @num_row
   end
 
-  def update_winner(col, row, player)
+  def update_winner(col, row)
     if (@winner.nil?)
-      @winner = check_for_winner(col, row, player)
+      @winner = check_for_winner(col, row, @player_queue.current_player)
     end
     if (@winner.nil? && draw?)
-      @winner = :empty
+      @winner = @player_queue.empty
     end
   end
 
@@ -125,7 +152,7 @@ class GameBoard
   end
 
   def draw?
-    (0..@num_col-1).all? { |col| player_at(col, 0) != :empty }
+    (0..@num_col-1).all? { |col| !player_at(col, 0).empty? }
   end
 
   def get_count(col, row, player, &block)
@@ -141,26 +168,10 @@ class GameBoard
   end
 
   def update_next_player
-    @next_player = @next_player == :player1 ? :player2 : :player1
+    @player_queue.next_player
 
-    if @player_controller[@next_player].ai?
-      drop(@player_controller[@next_player].find_next_move(self))
-    end
-  end
-
-  def player_controller(player)
-    @player_controller[player].symbol
-  end
-
-  # TODO add additional error checks
-  def set_player_controller(player, controller)
-    if controller == :human
-      @player_controller[player] = HumanPlayer.new
-    elsif controller == :simple_ai
-      @player_controller[player] = SimpleAiPlayer.new
-      if player == @next_player
-        drop(@player_controller[player].find_next_move(self))
-      end
+    if @player_queue.current_player.ai?
+      drop(@player_queue.current_player.find_next_move(self))
     end
   end
 end

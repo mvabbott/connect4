@@ -1,5 +1,9 @@
-class HumanPlayer
+class HumanPlayer < Player
   def ai?
+    false
+  end
+
+  def empty?
     false
   end
 

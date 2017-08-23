@@ -1,11 +1,34 @@
 require './app/models/game_board'
 require './app/models/cell'
+require './app/models/player'
+require './app/models/human_player'
+require './app/models/simple_ai_player'
+require './app/models/player_queue'
+require './app/models/empty_player'
 
 # Not sure if this is the right place for this, but it won't be needed once the
 # web interface is done.
 class Connect4Cli
-  def initialize
-    @game = GameBoard.new
+
+  def start_game
+    player1_type = get_player_type(1)
+    player2_type = get_player_type(2)
+    @game = GameBoard.new([player1_type, player2_type])
+
+    play
+  end
+
+  def get_player_type(player_number)
+    puts "Player #{player_number}, enter 1 for human player or 2 for ai player:"
+    value = Integer(gets) rescue nil
+    if value == 1
+      return :human
+    elsif value == 2
+      return :simple_ai
+    else
+      puts "Invalid, try again."
+      return get_player_type(player_number)
+    end
   end
 
   def play
@@ -23,7 +46,7 @@ class Connect4Cli
 
   def play_turn
     draw_board
-    print "Select column for #{@game.next_player}: "
+    print "Select column for player #{@game.current_player.player_number}: "
     col = Integer(gets) rescue nil
     if col.nil? || col < 0 || col >= @game.num_col
       puts "\nInvalid column, enter a number from 0 to #{@game.num_col - 1}"
@@ -42,4 +65,4 @@ class Connect4Cli
 end
 
 cli = Connect4Cli.new
-cli.play
+cli.start_game
