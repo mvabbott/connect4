@@ -5,6 +5,7 @@ require './app/models/human_player'
 require './app/models/simple_ai_player'
 require './app/models/player_queue'
 require './app/models/empty_player'
+require './app/models/draw_player'
 
 # Not sure if this is the right place for this, but it won't be needed once the
 # web interface is done.
@@ -37,7 +38,7 @@ class Connect4Cli
     end
 
     draw_board
-    if @game.winner == :empty
+    if @game.winner.draw?
       puts "\nDraw"
     else
       puts "\nWinner is player #{@game.winner.player_number}"

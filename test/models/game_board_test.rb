@@ -135,7 +135,7 @@ class GameBoardTest < ActiveSupport::TestCase
                 "1 1 2 2 2 1 1\n" +
                 "2 2 1 1 1 2 2\n" +
                 "1 1 2 2 2 1 1")
-    dropAndDetectWinner(5, 0, @player2, @empty)
+    dropAndDetectWinner(5, 0, @player2, DrawPlayer.new)
   end
 
   test "AI player automatically makes a move" do
@@ -165,6 +165,8 @@ class GameBoardTest < ActiveSupport::TestCase
     dropAndValidate(col, expected_row, expected_player)
     if (expected_winner.nil?)
       assert_nil @game.winner
+    elsif (expected_winner.draw?)
+      assert @game.winner.draw?
     else
       assert_equal expected_winner, @game.winner
     end

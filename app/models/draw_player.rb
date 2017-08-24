@@ -1,9 +1,9 @@
-class EmptyPlayer < Player
+class DrawPlayer < Player
   def initialize
     super(0)
   end
 
-  def empty?
+  def draw?
     true
   end
 end

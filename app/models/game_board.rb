@@ -41,6 +41,7 @@ class GameBoard
     end
   end
 
+  # TODO maybe move into a separate GameBoardBuilder class?
   # TODO improve error handling, bad size or values will result in invalid game
   def parse(board)
     # split rows and then columns, resulting in array indexed by row and then
@@ -123,7 +124,7 @@ class GameBoard
       @winner = check_for_winner(col, row, @player_queue.current_player)
     end
     if (@winner.nil? && draw?)
-      @winner = @player_queue.empty
+      @winner = DrawPlayer.new
     end
   end
 

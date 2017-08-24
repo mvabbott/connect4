@@ -2,7 +2,7 @@ class PlayerQueue
   attr_reader :empty
 
   def initialize
-    @empty = EmptyPlayer.new(0)
+    @empty = EmptyPlayer.new
     @queue = []
   end
 
