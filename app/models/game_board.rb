@@ -97,10 +97,14 @@ class GameBoard
   def drop(col)
     # Using fetch to cause IndexError rather than return nil
     # TODO Look for a cleaner way to raise errors (with friendly messages)
-    row = @cells.fetch(col).rindex { |cell| cell.available? }
+    row = get_available_row(col)
     @cells[col].fetch(row).assign(@player_queue.current_player)
     update_winner(col, row)
     update_next_player if @winner.nil?
+  end
+
+  def get_available_row(col)
+    @cells.fetch(col).rindex { |cell| cell.available? }
   end
 
   def player_at(col, row)
@@ -120,8 +124,8 @@ class GameBoard
   end
 
   def update_winner(col, row)
-    if (@winner.nil?)
-      @winner = check_for_winner(col, row, @player_queue.current_player)
+    if (@winner.nil? && winning_move?(col, row, @player_queue.current_player))
+      @winner = @player_queue.current_player
     end
     if (@winner.nil? && draw?)
       @winner = DrawPlayer.new
@@ -130,7 +134,7 @@ class GameBoard
 
   # Don't set the winner status here, it will later be used by the AI to decide when
   # to pick a column in order to win or block the player from winning.
-  def check_for_winner(col, row, player)
+  def winning_move?(col, row, player)
     # TODO clean this method up, it's pretty ugly right now
     left_count = get_count(col, row, player) { |col, row| [col - 1, row] }
     right_count = get_count(col, row, player) { |col, row| [col + 1, row] }
@@ -146,9 +150,9 @@ class GameBoard
         down_count + 1 >= 4 ||
         down_left_count + 1 + up_right_count >= 4 ||
         up_left_count + 1 + down_right_count >= 4)
-      return player
+      return true
     else
-      return nil
+      return false
     end
   end
 

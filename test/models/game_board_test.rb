@@ -152,6 +152,33 @@ class GameBoardTest < ActiveSupport::TestCase
                      "1 0 0 0 0 0 0", @game.to_s
   end
 
+  test "AI player makes winning move" do
+    @game = GameBoard.new([:human, :simple_ai])
+    @player1 = @game.find_player_by_number(1)
+    @player2 = @game.find_player_by_number(2)
+    @game.parse("0 0 0 0 0 0 0\n" +
+                "0 0 0 0 0 0 0\n" +
+                "0 0 0 0 0 0 0\n" +
+                "0 0 0 0 0 0 0\n" +
+                "0 0 0 0 0 0 0\n" +
+                "1 1 1 0 2 2 2")
+    dropAndDetectWinner(0, 4, @player1, @player2)
+  end
+
+  test "AI player blocks opponent" do
+    @game = GameBoard.new([:human, :simple_ai])
+    @player1 = @game.find_player_by_number(1)
+    @player2 = @game.find_player_by_number(2)
+    @game.parse("0 0 0 0 0 0 0\n" +
+                "0 0 0 0 0 0 0\n" +
+                "0 0 0 0 0 0 0\n" +
+                "0 0 0 0 0 0 0\n" +
+                "0 0 0 0 0 0 0\n" +
+                "1 1 0 0 0 2 2")
+    dropAndValidate(2, 5, @player1)
+    assert_equal @player2, @game.player_at(3, 5)
+  end
+
   def dropAndValidate(col, expected_row, expected_player)
     @game.drop(col)
     assert_equal expected_player, @game.player_at(col, expected_row)
