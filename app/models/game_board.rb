@@ -99,7 +99,7 @@ class GameBoard
     row = @cells.fetch(col).rindex { |cell| cell.available? }
     @cells[col].fetch(row).assign(@player_queue.current_player)
     update_winner(col, row)
-    update_next_player
+    update_next_player if @winner.nil?
   end
 
   def player_at(col, row)

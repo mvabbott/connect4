@@ -40,7 +40,7 @@ class Connect4Cli
     if @game.winner == :empty
       puts "\nDraw"
     else
-      puts "\nWinner is #{@game.winner}"
+      puts "\nWinner is player #{@game.winner.player_number}"
     end
   end
 
