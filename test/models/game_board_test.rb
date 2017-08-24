@@ -152,6 +152,19 @@ class GameBoardTest < ActiveSupport::TestCase
                      "1 0 0 0 0 0 0", @game.to_s
   end
 
+  test "When first player is AI automatically make initial move" do
+    @game = GameBoard.new([:simple_ai, :human])
+    @player2 = @game.find_player_by_number(2)
+
+    assert_equal @player2, @game.current_player
+    assert_not_equal "0 0 0 0 0 0 0\n" +
+                     "0 0 0 0 0 0 0\n" +
+                     "0 0 0 0 0 0 0\n" +
+                     "0 0 0 0 0 0 0\n" +
+                     "0 0 0 0 0 0 0\n" +
+                     "0 0 0 0 0 0 0", @game.to_s
+  end
+
   test "AI player makes winning move" do
     @game = GameBoard.new([:human, :simple_ai])
     @player1 = @game.find_player_by_number(1)

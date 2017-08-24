@@ -24,6 +24,10 @@ class GameBoard
     @num_row = 6
     @cells = Array.new(@num_col) { Array.new(@num_row) { Cell.new(@player_queue.empty) } }
     @winner = nil
+
+    if @player_queue.current_player.ai?
+      drop(@player_queue.current_player.find_next_move(self))
+    end
   end
 
   def build_player_queue(player_types)
